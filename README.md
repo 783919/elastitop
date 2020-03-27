@@ -11,7 +11,7 @@ If your task is injecting into Elastisearch (ES) millions of Ntopng flows scatte
   
 - capmerge.py: aggregates small sized pcaps into a large one according to a user defined size S, say from 20 to 50 GB (there is an hardcoded 100 MB limit). If a pcap il already larger than S it is only renamed. The module spawns at most 8 (also hardcoded) concurrent mergecap (wireshark common) processes to aggregate input pcaps. The use of capmerge.py is optional before invoking elastitop_mngr.py, but could be useful:
   - to reduce the overall number of spawned ntopng processes, as the shutdown phase (which flushes flows to ES in tested version 3.8) is            time consuming
-  - to avoid polluting ES with many almost identical documents, in presence of small sized pcap files that ultimately store the same flow
+  - to avoid polluting ES with many almost identical documents, in presence of small sized pcap files that ultimately store the same flow.
 On the other hand, please consider that if size S is overly increased, so does the chance of ES dropping flows  
 
   Usage: python3 capmerge.py "source pcap files folder" "destination pcap files folder" "size in MB"
