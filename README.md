@@ -4,7 +4,7 @@ ntopng flows massive uploader to Elasticsearch
 Copyright (c) 2020 corrado federici (corrado.federici@unibo.it)
 
 
-If your task is injecting into Elastisearch (ES) millions of Ntopng flows scattered in thousands of pcap files this simple project may help you. The combination of Ntopng Elastisearch Kibana is beneficial to network analysis with open source tools, but sometimes one may face the issue of dealing with a huge quantity of traffic which slows down the ingestion process to Elasticsearch. Elastitop is made of three python modules:
+If your task is injecting into Elastisearch (ES) millions of Ntopng flows read from thousands of pcap files this simple project may help you. The combination of Ntopng Elastisearch Kibana is beneficial to network analysis with open source tools, but sometimes one may face the issue of dealing with a huge quantity of traffic which slows down the ingestion process to Elasticsearch. Elastitop is made of three python modules:
 
 - elastitop_mngr.py: sorts pcap files folder according to modification time and spawns a ntopng process (handled by elastitop.py) for each file (up to an hardcoded limit of 8 concurrent processes). Feeding ES in parallel greatly reduces overall time needed to inject flows compared to a sequential approach.
 
