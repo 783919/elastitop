@@ -18,5 +18,5 @@ On the other hand, please consider that if size S overly increases, so does the 
 
   Usage: python capmerge.py "source pcap files folder" "destination pcap files folder" "size in MB"
  
-Tested with: Ntopng rel 3.8.190813 community, Mergecap (Wireshark) 3.0.5 (Git v3.0.5 packaged as 3.0.5-1), Python 3.7.5,
+Tested with: Ubuntu 19.04, Ntopng rel 3.8.190813 community, Mergecap (Wireshark) 3.0.5 (Git v3.0.5 packaged as 3.0.5-1), Python 3.7.5,
 Elastisearch 7.6.1
