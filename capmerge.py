@@ -14,7 +14,7 @@ import shutil
 import psutil
 
 #############################################################################################
-BANNER="Capmerge : merge cap files up to chosen size rel. 0.0.0 Corrado Federici (corrado.federici@unibo.it). Times are in GMT"
+BANNER="Capmerge : merge cap files up to chosen size rel. 0.0.1 Corrado Federici (corrado.federici@unibo.it). Times are in GMT"
 LOG_FOLDER="./logs"
 MERGED_FILE_SZ_MB=100
 ONE_MB=1024*1024
@@ -39,8 +39,9 @@ def merge_files(proc_list,file_to_merge_list,dest_file):
     command.append(dest_file)
     for item in file_to_merge_list:
         command.append(item)
-    p = subprocess.Popen(command,stdout=subprocess.PIPE,stdin=subprocess.PIPE,
-        stderr=subprocess.PIPE,shell=False)
+    p = subprocess.Popen(command,shell=False)
+    #p = subprocess.Popen(command,stdout=subprocess.PIPE,stdin=subprocess.PIPE,
+        #stderr=subprocess.PIPE,shell=False)
     proc_list[p.pid]=p
 #############################################################################################
 def process_pcap_folder(pcap_source_files_folder,pcap_dest_files_folder,size_in_MB):
@@ -50,6 +51,7 @@ def process_pcap_folder(pcap_source_files_folder,pcap_dest_files_folder,size_in_
     copied_file_id=0
     merged_file_size=0
     total_processed_size=0
+    logging.info("Sorting source files...")
     filenames = glob.glob(os.path.join(pcap_source_files_folder,"*"))
     filenames.sort(key=os.path.getmtime)
     for filename in filenames:
@@ -60,6 +62,7 @@ def process_pcap_folder(pcap_source_files_folder,pcap_dest_files_folder,size_in_
         if(size/ONE_MB>=size_in_MB):
             copied_file_id+=1
             merge_name="merged-{0}.pcap".format(copied_file_id)
+            logging.info("Merged pcap file name {0}".format(merge_name))
             shutil.copy(filename,os.path.join(pcap_dest_files_folder,merge_name))
             continue
         merged_file_size+=size
@@ -67,6 +70,7 @@ def process_pcap_folder(pcap_source_files_folder,pcap_dest_files_folder,size_in_
         if(merged_file_size/ONE_MB>=size_in_MB):
             copied_file_id+=1
             merge_name="merged-{0}.pcap".format(copied_file_id)
+            logging.info("Merged pcap file name {0}".format(merge_name))
             merge_files(process_list,files_to_merge_list,os.path.join(pcap_dest_files_folder,merge_name))
             merged_file_size=0
             files_to_merge_list.clear()            
