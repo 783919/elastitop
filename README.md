@@ -21,6 +21,6 @@ On the other hand, please consider that if size S overly increases, so does the 
 
 - metrics/es_metrics.py: performs queries on ES to detect known applications (as per ntopng protocols definitions) such as most frequent dns resolutions. top talkers, communication protocols (e.g. STUN) and generates a report with whois and nslookup data of ip addresses
 
-  Usage: python es_metrics.py  "number of top scored records"  (e.g. python es_metrics.py  "10")
+  Usage: python3 es_metrics.py  "number of top scored records"  (e.g. python3 es_metrics.py  "10")
 
 Tested with: Ubuntu 19.04, Ntopng rel 3.8.190813 community, Mergecap (Wireshark) 3.0.5 (Git v3.0.5 packaged as 3.0.5-1), Python 3.7.5, Elastisearch 7.6.1
