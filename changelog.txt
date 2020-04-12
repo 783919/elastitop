@@ -18,8 +18,8 @@ es_metrics.py:
 - solved a typo in COMM_PROTO array that prevented WHATSAPP_CALL protocol to be detected
 - in function get_data_from_es changed logging info to "Protocol not present"
 ### Removed
-es_metrics.py:
-- removed import ipwhois which was not used
+*.py:
+- some unused imports
 
 ## [1.0.0] - 2020-04-07
 ### Added
