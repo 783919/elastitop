@@ -3,16 +3,12 @@ import os
 import sys
 import ctypes
 import time
-import json
-import re
 import logging
-import requests
-import hashlib
-import signal
 import glob
+import psutil
 
 #############################################################################################
-BANNER="Elastitop: Ntopng flows massive dumper to Elasticsearch rel. 1.0.0 Corrado Federici (corrado.federici@unibo.it). Times are in GMT"
+BANNER="Elastitop: Ntopng flows massive dumper to Elasticsearch rel. 1.0.1 Corrado Federici (corrado.federici@unibo.it). Times are in GMT"
 LOG_FOLDER="./logs"
 #############################################################################################
 def spawn_process(pcap_file,port,proc_list):
@@ -118,6 +114,10 @@ try:
     path_to_pcap_folder=sys.argv[1]
     if not(os.path.exists(path_to_pcap_folder)):
         raise Exception("Path {0} is invalid".format(path_to_pcap_folder))
+    processName="ntopng"
+    for proc in psutil.process_iter():
+        if processName in proc.name().lower():
+            raise Exception("{0} already running. Please stop it before launching me".format(processName))
     process_pcap_folder(path_to_pcap_folder)
 except Exception as ex:
     logging.error("An error occurred. {0}".format(ex.args))

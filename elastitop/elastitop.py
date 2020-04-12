@@ -3,11 +3,7 @@ import os
 import sys
 import ctypes
 import time
-import json
-import re
 import logging
-import requests
-import hashlib
 import signal
 
 #############################################################################################
