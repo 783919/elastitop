@@ -4,16 +4,12 @@ import sys
 import ctypes
 import time
 import json
-import re
 import logging
 import requests
-import hashlib
-import signal
 import socket
-import ipwhois
 
 #############################################################################################
-BANNER="Es metrics : calculate reports on Elasticsearch rel. 1.0.0 Corrado Federici (corrado.federici@unibo.it). Times are in GMT"
+BANNER="Es metrics : calculate reports on Elasticsearch rel. 1.0.1 Corrado Federici (corrado.federici@unibo.it). Times are in GMT"
 ES_CONNECT="http://localhost:9200/ntopng-*/_search"
 LOG_FOLDER="./logs"
 REPORT_FOLDER="./reports"
@@ -276,7 +272,7 @@ NDPI_PROTOS={
 
 COMM_PROTO=[
     "NDPI_PROTOCOL_SKYPE_CALL",
-    "WHATSAPP_CALL",
+    "NDPI_PROTOCOL_WHATSAPP_CALL",
     "NDPI_PROTOCOL_STUN",
     "NDPI_PROTOCOL_RTP",
     "NDPI_PROTOCOL_TRUPHONE",
@@ -369,7 +365,7 @@ def get_data_from_es(data):
         if(len(hits)>0):
             success=True
         else:
-            logging.info("hits array is empty")
+            logging.info("Protocol not present")
     else:
         logging.error("Fatal error while talking to Elasticsearch. Status code:{0}".format(r.status_code))
     return success,hits
