@@ -1,5 +1,5 @@
 # elastitop
-ntopng flows massive uploader to Elasticsearch. Current version 1.0.0
+ntopng flows massive uploader to Elasticsearch. Current version 1.0.1
 
 Copyright (c) 2020 corrado federici (corrado.federici@unibo.it)
 
