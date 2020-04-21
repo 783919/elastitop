@@ -8,7 +8,7 @@ import glob
 import psutil
 
 #############################################################################################
-BANNER="Elastitop: Ntopng flows massive dumper to Elasticsearch rel. 1.0.1 Corrado Federici (corrado.federici@unibo.it). Times are in GMT"
+BANNER="Elastitop: Ntopng flows massive dumper to Elasticsearch rel. 1.1.0 Corrado Federici (corrado.federici@unibo.it). Times are in GMT"
 LOG_FOLDER="./logs"
 #############################################################################################
 def spawn_process(pcap_file,port,proc_list):
