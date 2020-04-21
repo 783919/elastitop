@@ -9,7 +9,7 @@ import requests
 import socket
 
 #############################################################################################
-BANNER="Es metrics : calculate reports on Elasticsearch rel. 1.0.1 Corrado Federici (corrado.federici@unibo.it). Times are in GMT"
+BANNER="Es metrics : calculate reports on Elasticsearch rel. 1.1.0 Corrado Federici (corrado.federici@unibo.it). Times are in GMT"
 ES_CONNECT="http://localhost:9200/ntopng-*/_search"
 LOG_FOLDER="./logs"
 REPORT_FOLDER="./reports"
@@ -492,12 +492,90 @@ def calculate_hits_dns(num_of_hits):
             }
         }
     }
-    logging.info("Generating report: dns query top {0} hits".format(num_of_hits))
+    logging.info("Generating report: dns query  {0} hits".format(num_of_hits))
     success,buckets=get_aggreg_data_from_es(ES_QUERY_HITS)
     if success:
         f = open(os.path.join(REPORT_FOLDER,REPORT_FNAME),"a")
-        f.write("*** {0} ***\n".format("NDPI_PROTOCOL_DNS"))
+        f.write("*** {0} ***\n".format("DNS TOP QUERIES"))
         f.write("Fqdn"+","+"Count"+"\n")
+        for bucket in buckets:
+            ipv4=bucket["key"]
+            count=bucket["doc_count"]
+            f.write("{0},{1}\n".format(ipv4,count))
+        f.write(REPORT_SPACE_HDR)
+        f.close()
+
+#############################################################################################
+def calculate_hits_http_urls(num_of_hits):
+    ES_QUERY_HITS ={
+        "size":0,
+        "aggs" : {
+            "es_query" : {
+                "terms" : {
+                    "size":num_of_hits,
+                    "field" : "HTTP_URL.keyword"
+                }
+            }
+        }
+    }
+    logging.info("Generating report: http top {0} urls".format(num_of_hits))
+    success,buckets=get_aggreg_data_from_es(ES_QUERY_HITS)
+    if success:
+        f = open(os.path.join(REPORT_FOLDER,REPORT_FNAME),"a")
+        f.write("*** {0} ***\n".format("TOP HTTP URLS"))
+        f.write("Http Urls"+","+"Count"+"\n")
+        for bucket in buckets:
+            ipv4=bucket["key"]
+            count=bucket["doc_count"]
+            f.write("{0},{1}\n".format(ipv4,count))
+        f.write(REPORT_SPACE_HDR)
+        f.close()
+
+#############################################################################################
+def calculate_hits_http_hosts(num_of_hits):
+    ES_QUERY_HITS ={
+        "size":0,
+        "aggs" : {
+            "es_query" : {
+                "terms" : {
+                    "size":num_of_hits,
+                    "field" : "HTTP_HOST.keyword"
+                }
+            }
+        }
+    }
+    logging.info("Generating report: http top {0} hosts".format(num_of_hits))
+    success,buckets=get_aggreg_data_from_es(ES_QUERY_HITS)
+    if success:
+        f = open(os.path.join(REPORT_FOLDER,REPORT_FNAME),"a")
+        f.write("*** {0} ***\n".format("TOP HTTP HOSTS"))
+        f.write("Http Server Name"+","+"Count"+"\n")
+        for bucket in buckets:
+            ipv4=bucket["key"]
+            count=bucket["doc_count"]
+            f.write("{0},{1}\n".format(ipv4,count))
+        f.write(REPORT_SPACE_HDR)
+        f.close()
+
+#############################################################################################
+def calculate_hits_https_hosts(num_of_hits):
+    ES_QUERY_HITS ={
+        "size":0,
+        "aggs" : {
+            "es_query" : {
+                "terms" : {
+                    "size":num_of_hits,
+                    "field" : "SSL_SERVER_NAME.keyword"
+                }
+            }
+        }
+    }
+    logging.info("Generating report: https top {0} hosts".format(num_of_hits))
+    success,buckets=get_aggreg_data_from_es(ES_QUERY_HITS)
+    if success:
+        f = open(os.path.join(REPORT_FOLDER,REPORT_FNAME),"a")
+        f.write("*** {0} ***\n".format("TOP HTTPS HOSTS"))
+        f.write("Https Server Name"+","+"Count"+"\n")
         for bucket in buckets:
             ipv4=bucket["key"]
             count=bucket["doc_count"]
@@ -512,7 +590,7 @@ def calculate_hits_ipv4dest_out_bytes(num_of_hits):
         "aggs" : {
             "es_query" : {
                 "terms" : {
-                    "size":10,
+                    "size":num_of_hits,
                     "field" : "IPV4_DST_ADDR.keyword",
 					"order" : {
 					    "sum_out_bytes":"desc"
@@ -548,7 +626,7 @@ def calculate_hits_ipv4dest_in_bytes(num_of_hits):
         "aggs" : {
             "es_query" : {
                 "terms" : {
-                    "size":10,
+                    "size":num_of_hits,
                     "field" : "IPV4_DST_ADDR.keyword",
 					"order" : {
 					    "sum_in_bytes":"desc"
@@ -599,6 +677,9 @@ try:
     if os.path.exists(os.path.join(REPORT_FOLDER,REPORT_FNAME)):
         os.remove(os.path.join(REPORT_FOLDER,REPORT_FNAME))
     calculate_hits_dns(num_of_hits)
+    calculate_hits_http_urls(num_of_hits)
+    calculate_hits_http_hosts(num_of_hits)
+    calculate_hits_https_hosts(num_of_hits)
     calculate_hits_ipv4dest_out_bytes(num_of_hits)
     calculate_hits_ipv4dest_in_bytes(num_of_hits)
     process_protocols(num_of_hits)
