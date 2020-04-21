@@ -1,5 +1,5 @@
 # elastitop
-ntopng flows massive uploader to Elasticsearch. Current version 1.0.1
+ntopng flows massive uploader to Elasticsearch. Current version 1.1.0  Apr 21,2020
 
 Copyright (c) 2020 corrado federici (corrado.federici@unibo.it)
 
@@ -19,7 +19,7 @@ On the other hand, please consider that if size S overly increases, so does the 
   Usage: python3 capmerge.py "source pcap files folder" "destination pcap files folder" "size in MB"
   (e.g. python3 capmerge.py "/home/user/caps-in" "/home/user/caps-merged" "20")
 
-- metrics/es_metrics.py: performs queries on ES to detect known applications (as per ntopng protocols definitions) such as most frequent dns resolutions. top talkers, communication protocols (e.g. STUN) and generates a report with whois and nslookup data of ip addresses
+- metrics/es_metrics.py: performs queries on ES to detect known applications (as per ntopng protocols definitions) such as most frequent dns resolutions, top talkers, top http/https hosts, communication protocols (e.g. STUN) and generates a report with whois and nslookup data of ip addresses
 
   Usage: python3 es_metrics.py  "number of top scored records"  (e.g. python3 es_metrics.py  "10")
 
