@@ -8,7 +8,7 @@ import glob
 import shutil
 
 #############################################################################################
-BANNER="Capmerge : merge cap files up to chosen size rel. 1.0.1 Corrado Federici (corrado.federici@unibo.it). Times are in GMT"
+BANNER="Capmerge : merge cap files up to chosen size rel. 1.1.0 Corrado Federici (corrado.federici@unibo.it). Times are in GMT"
 LOG_FOLDER="./logs"
 MERGED_FILE_SZ_MB=100
 ONE_MB=1024*1024
