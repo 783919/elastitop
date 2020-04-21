@@ -9,6 +9,15 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 ### Changed
 ### Removed
 
+## [1.1.0] - 2020-04-21
+### Added
+es_metrics.py:
+- added reports for top http urls, http hosts and https hosts 
+### Changed
+es_metrics.py:
+- in functions calculate_hits_ipv4dest_out_bytes and calculate_hits_ipv4dest_in_bytes hits size was mistakenly fixed to 10
+- changed report header for dns hits
+
 ## [1.0.1] - 2020-04-12
 ### Added
 elastitop_mngr.py:
