@@ -13,7 +13,7 @@ If you need to get a quick insight into a vast amount of captured traffic this p
   Usage: sudo python3 elastitop_mngr.py "path to pcap files folder" (e.g. sudo python3 elastitop_mngr.py "/home/user/caps")
   
 - capmerge/capmerge.py: aggregates small sized pcaps into a large one according to a user defined size S, say from 20 to 50 GB (there is an hardcoded 100 MB limit). If a pcap il already larger than S it is only renamed. The module spawns at most 8 (also hardcoded) concurrent mergecap (wireshark common) processes to aggregate input pcaps. The use of capmerge.py is optional before invoking elastitop_mngr.py, but could be useful:
-  * to reduce the overall number of spawned ntopng processes, as the shutdown phase (which flushes flows to ES in tested version 3.8) is            time consuming
+  * to reduce the overall number of spawned ntopng processes, as the shutdown phase (which flushes flows to ES in tested version 3.8) is time consuming
   * to avoid polluting ES with many almost identical documents, in presence of small sized pcap files that ultimately store the same flow.
   
 On the other hand, please consider that if size S overly increases, so does the chance of ES dropping flows 
@@ -21,7 +21,7 @@ On the other hand, please consider that if size S overly increases, so does the 
   Usage: python3 capmerge.py "source pcap files folder" "destination pcap files folder" "size in MB"
   (e.g. python3 capmerge.py "/home/user/caps-in" "/home/user/caps-merged" "20")
 
-- metrics/es_metrics.py: performs queries on ES to detect the presence known applications (as per ntopng protocols definitions) such as most frequent dns resolutions, top talkers, top http/https hosts, communication protocols (e.g. STUN, RTP, WhatsApp/Skype calls, Twitter,Facebook,...) and generates a report with whois and nslookup data of ip addresses
+- metrics/es_metrics.py: performs queries on ES to detect the presence known applications (as per ntopng protocols definitions) such as most frequent dns resolutions, top talkers, top http/https hosts, communication protocols (e.g. STUN, RTP, WhatsApp/Skype calls) and social media Apps (Twitter,Facebook,...) and generates a report with whois and nslookup data of ip addresses
 
   Usage: python3 es_metrics.py  "number of top scored records"  (e.g. python3 es_metrics.py  "10")
 
