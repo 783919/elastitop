@@ -7,15 +7,17 @@ import json
 import logging
 import requests
 import socket
+#import glob
 
 #############################################################################################
-BANNER="Es metrics : calculate reports on Elasticsearch rel. 1.1.0 Corrado Federici (corrado.federici@unibo.it). Times are in GMT"
+BANNER="Es metrics : calculate reports on Elasticsearch rel. 1.2.0 Corrado Federici (corrado.federici@unibo.it). Times are in GMT"
 ES_CONNECT="http://localhost:9200/ntopng-*/_search"
 LOG_FOLDER="./logs"
 REPORT_FOLDER="./reports"
 REPORT_FNAME="report.csv"
 REPORT_SPACE_HDR="***\n"
 MAX_HITS=100
+REPORT_COL_SEP=","
 #
 NDPI_PROTOS={
 #"NDPI_PROTOCOL_UNKNOWN":"0",
@@ -391,8 +393,6 @@ def resolve_ipv4_address_fqdn(ipv4_addr):
         logging.error("Nslookup error for ip address {0}. Error: {1}".format(ipv4_addr,ex.args))
     return fqdn
 
-
-
 #############################################################################################
 def resolve_ipv4_address_org(ipv4_addr):
     org=""
@@ -417,6 +417,45 @@ def resolve_ipv4_address_org(ipv4_addr):
     return org
 
 #############################################################################################
+def get_user_agent_string(path_to_pcap_folder,pcap_file_name,report_file,uas):
+    #uas=[]
+    try:
+        command=["ngrep"]
+        command.append("-I")
+        command.append(os.path.join(path_to_pcap_folder,pcap_file_name))
+        command.append("-W")
+        command.append("byline")
+        command.append("-q")
+        command.append("User-Agent:")
+        p = subprocess.run(command,capture_output=True,shell=False)
+        if len(p.stderr)==0 and len(p.stdout)>0:
+            socket_str_found=False
+            ipv4s=""
+            ports=""
+            ipv4d=""
+            portd=""
+            for line in p.stdout.decode("ISO-8859-1").splitlines():
+                if line.startswith("T "):
+                    socket_str_found=True
+                    ipv4s=line.split(" -> ")[0].strip("T ").split(":")[0]
+                    ports=line.split(" -> ")[0].strip("T ").split(":")[1]
+                    ipv4d=line.split(" -> ")[1].split(" ")[0].split(":")[0]
+                    portd=line.split(" -> ")[1].split(" ")[0].split(":")[1]
+                elif line.startswith("User-Agent:"):
+                    if socket_str_found:
+                        socket_str_found=False
+                        ua=line.split("User-Agent:")[1].strip(".").strip()
+                        if len(ua)>0 and ua not in uas:
+                            uas.append(ua)
+                            report_file.write(
+                                "{0},{1},{2},{3},{4},{5}\n".format(pcap_file_name,ua,ipv4s,ports,ipv4d,portd))
+                elif line.startswith("."):
+                    socket_str_found=False
+    except Exception as ex:
+        logging.error("Error while launching ngrep utility. Error: {0}".format(ex.args))
+    return uas
+
+#############################################################################################
 def process_protocols(num_of_hits):
     for proto in NDPI_PROTOS:
         if proto in COMM_PROTO:
@@ -427,14 +466,14 @@ def process_protocols(num_of_hits):
 			        }
 		        },
                 "size":MAX_HITS,
-           		"_source": ["IPV4_SRC_ADDR", "IPV4_DST_ADDR","INTERFACE"]
+           		"_source": ["IPV4_SRC_ADDR","IPV4_DST_ADDR","INTERFACE"]
             }
             logging.info("Generating report for protocol {0} top {1} hits".format(proto,MAX_HITS))
             success,hits=get_data_from_es(ES_QUERY_HITS)
             if success:
                 f = open(os.path.join(REPORT_FOLDER,REPORT_FNAME),"a")
                 f.write("*** {0} ***\n".format(proto))
-                f.write("Interface" + "," + "Source Ipv4" + "," + "fqdn" + "," + "organization" + "," + "Dest Ipv4" + "," + "fqdn" + "," + "organization"+"\n")
+                f.write("Interface" + REPORT_COL_SEP + "Source Ipv4" + REPORT_COL_SEP + "fqdn" + REPORT_COL_SEP + "organization" + REPORT_COL_SEP + "Dest Ipv4" + REPORT_COL_SEP + "fqdn" + REPORT_COL_SEP + "organization"+"\n")
                 for hit in hits:
                     ipv4s=hit["_source"]["IPV4_SRC_ADDR"]
                     ipv4d=hit["_source"]["IPV4_DST_ADDR"]
@@ -469,7 +508,7 @@ def process_protocols(num_of_hits):
             if success:
                 f = open(os.path.join(REPORT_FOLDER,REPORT_FNAME),"a")
                 f.write("*** {0} ***\n".format(proto))
-                f.write("Ipv4"+","+"Count"+ ","+"fqdn"+","+"organization"+"\n")
+                f.write("Ipv4"+REPORT_COL_SEP+"Count"+ REPORT_COL_SEP+"fqdn"+REPORT_COL_SEP+"organization"+"\n")
                 for bucket in buckets:
                     ipv4=bucket["key"]
                     counts=bucket["doc_count"]
@@ -497,7 +536,7 @@ def calculate_hits_dns(num_of_hits):
     if success:
         f = open(os.path.join(REPORT_FOLDER,REPORT_FNAME),"a")
         f.write("*** {0} ***\n".format("DNS TOP QUERIES"))
-        f.write("Fqdn"+","+"Count"+"\n")
+        f.write("Fqdn"+ REPORT_COL_SEP +"Count"+"\n")
         for bucket in buckets:
             ipv4=bucket["key"]
             count=bucket["doc_count"]
@@ -523,13 +562,41 @@ def calculate_hits_http_urls(num_of_hits):
     if success:
         f = open(os.path.join(REPORT_FOLDER,REPORT_FNAME),"a")
         f.write("*** {0} ***\n".format("TOP HTTP URLS"))
-        f.write("Http Urls"+","+"Count"+"\n")
+        f.write("Http Urls"+ REPORT_COL_SEP + "Count"+"\n")
         for bucket in buckets:
             ipv4=bucket["key"]
             count=bucket["doc_count"]
             f.write("{0},{1}\n".format(ipv4,count))
         f.write(REPORT_SPACE_HDR)
         f.close()
+
+#############################################################################################
+def calculate_http_user_agent(path_to_pcap_folder):
+    ES_QUERY_HITS ={
+        "query": {
+		    "bool": {
+	            "must": [
+    	            {"match": { "L7_PROTO":7}}
+                ]
+            }
+        },      
+	    "size":1,
+        "_source": ["IPV4_SRC_ADDR","L4_SRC_PORT","IPV4_DST_ADDR","L4_DST_PORT","INTERFACE"]
+    }
+    success,hits=get_data_from_es(ES_QUERY_HITS)
+    if success:
+        #http is present
+        logging.info("Generating report for http user agents")
+        f = open(os.path.join(REPORT_FOLDER,REPORT_FNAME),"a")
+        f.write("*** {0} ***\n".format("HTTP USER AGENTS"))
+        f.write("Interface" + REPORT_COL_SEP + "User Agent" + REPORT_COL_SEP + "Source Ipv4" + REPORT_COL_SEP + "Source Port" + REPORT_COL_SEP + "Dest Ipv4" + REPORT_COL_SEP + "Dest Port" + "\n")
+        uas=[]
+        for filename in os.listdir(path_to_pcap_folder):
+            uas=get_user_agent_string(path_to_pcap_folder,filename,f,uas)
+        f.write(REPORT_SPACE_HDR)
+        f.close()
+    else:
+        logging.info("Http protocol not present. Cannot look for user agents")
 
 #############################################################################################
 def calculate_hits_http_hosts(num_of_hits):
@@ -549,7 +616,7 @@ def calculate_hits_http_hosts(num_of_hits):
     if success:
         f = open(os.path.join(REPORT_FOLDER,REPORT_FNAME),"a")
         f.write("*** {0} ***\n".format("TOP HTTP HOSTS"))
-        f.write("Http Server Name"+","+"Count"+"\n")
+        f.write("Http Server Name"+ REPORT_COL_SEP + "Count"+"\n")
         for bucket in buckets:
             ipv4=bucket["key"]
             count=bucket["doc_count"]
@@ -575,7 +642,7 @@ def calculate_hits_https_hosts(num_of_hits):
     if success:
         f = open(os.path.join(REPORT_FOLDER,REPORT_FNAME),"a")
         f.write("*** {0} ***\n".format("TOP HTTPS HOSTS"))
-        f.write("Https Server Name"+","+"Count"+"\n")
+        f.write("Https Server Name" + REPORT_COL_SEP + "Count"+"\n")
         for bucket in buckets:
             ipv4=bucket["key"]
             count=bucket["doc_count"]
@@ -609,7 +676,7 @@ def calculate_hits_ipv4dest_out_bytes(num_of_hits):
     if success:
         f = open(os.path.join(REPORT_FOLDER,REPORT_FNAME),"a")
         f.write("*** {0} ***\n".format("IPV4 TOP TALKERS BY OUT BYTES"))
-        f.write("Ipv4"+","+"out bytes"+ ","+"fqdn"+","+"organization"+"\n")
+        f.write("Ipv4" + REPORT_COL_SEP + "out bytes" + REPORT_COL_SEP + "fqdn" + REPORT_COL_SEP + "organization"+"\n")
         for bucket in buckets:
             ipv4=bucket["key"]
             sum=bucket["sum_out_bytes"]["value"]
@@ -645,7 +712,7 @@ def calculate_hits_ipv4dest_in_bytes(num_of_hits):
     if success:
         f = open(os.path.join(REPORT_FOLDER,REPORT_FNAME),"a")
         f.write("*** {0} ***\n".format("IPV4 TOP TALKERS BY IN BYTES"))
-        f.write("Ipv4"+","+"in bytes"+ ","+"fqdn"+","+"organization"+"\n")
+        f.write("Ipv4" + REPORT_COL_SEP + "in bytes" + REPORT_COL_SEP + "fqdn" + REPORT_COL_SEP + "organization" + "\n")
         for bucket in buckets:
             ipv4=bucket["key"]
             sum=bucket["sum_in_bytes"]["value"]
@@ -671,12 +738,16 @@ try:
     ])
     logging.Formatter.converter = time.gmtime
     logging.info(BANNER)
-    if len(sys.argv)!=2:
-        raise Exception("Usage: {0} <Number of hits>".format(sys.argv[0]))
+    if len(sys.argv)!=3:
+        raise Exception("Usage: {0} <Number of hits> <path to pcap folder>".format(sys.argv[0]))
+    path_to_pcap_folder=sys.argv[2]
+    if not(os.path.exists(path_to_pcap_folder)):
+        raise Exception("Path {0} is invalid".format(path_to_pcap_folder))
     num_of_hits=int(sys.argv[1])
     if os.path.exists(os.path.join(REPORT_FOLDER,REPORT_FNAME)):
         os.remove(os.path.join(REPORT_FOLDER,REPORT_FNAME))
     calculate_hits_dns(num_of_hits)
+    calculate_http_user_agent(path_to_pcap_folder)
     calculate_hits_http_urls(num_of_hits)
     calculate_hits_http_hosts(num_of_hits)
     calculate_hits_https_hosts(num_of_hits)
