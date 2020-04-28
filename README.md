@@ -6,7 +6,7 @@ Current version 1.2.0  Apr 28,2020
 Copyright (c) 2020 corrado federici (corrado.federici@unibo.it)
 
 
-If you need to get a quick insight into a vast amount of captured traffic this project can help you. Elastitop aggregates pcap files, levergaes Ntopng to inject analyzed flows into Elastisearch (ES) then finally generates a report containing detected protocols and applications (e.g. mail, database, social media and so on). There are three python modules:
+If you need to get a quick insight into a vast amount of captured traffic this project can help you. Elastitop aggregates pcap files, leverages Ntopng to inject analyzed flows into Elastisearch (ES) then finally generates a report containing detected protocols and applications (e.g. mail, database, social media and so on). There are three python modules:
 
 - elastitop/elastitop_mngr.py: sorts pcap files folder according to modification time and spawns a ntopng process (handled by elastitop.py) for each file (up to an hardcoded limit of 8 concurrent processes). Feeding ES in parallel greatly reduces overall time needed to inject flows compared to a sequential approach.
 
