@@ -21,7 +21,7 @@ On the other hand, please consider that if size S overly increases, so does the 
   Usage: python3 capmerge.py "source pcap files folder" "destination pcap files folder" "size in MB"
   (e.g. python3 capmerge.py "/home/user/caps-in" "/home/user/caps-merged" "20")
 
-- metrics/es_metrics.py: performs queries on ES to detect the presence known application protocols (as per ntopng protocols definitions). A report with whois and nslookup data of ip addresses is finally generate as CSV file which contains most frequent dns resolutions, top talkers, top http/https hosts, http user-agents (leveraging ngrep), http top urls, communication protocols (e.g. STUN, RTP, WhatsApp/Skype calls), social media Apps (Twitter,Facebook,...) and many other (databases, file transfer, remote management, ..). Protocol detection can be easily enabled/disabled via python code modification (arrays COMM_PROTO and ALLOWED_PROTO)
+- metrics/es_metrics.py: performs queries on ES to detect the presence known application protocols (as per ntopng protocols definitions). A report with whois and nslookup data of ip addresses is finally generated as CSV file which contains most frequent dns resolutions, top talkers, top http/https hosts, http user-agents (leveraging ngrep), http top urls, communication protocols (e.g. STUN, RTP, WhatsApp/Skype calls), social media Apps (Twitter,Facebook,...) and many other (databases, file transfer, remote management, ..). Protocol detection can be easily enabled/disabled via python code modification (arrays COMM_PROTO and ALLOWED_PROTO)
 
   Usage: python3 es_metrics.py  "number of top scored records" "path to pcap files folder" (e.g. python3 es_metrics.py  "10" "/home/user/caps")
 
