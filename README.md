@@ -1,7 +1,7 @@
 # elastitop
 ntopng flows massive uploader to Elasticsearch and report generator.
 
-Current version 1.1.0  Apr 21,2020
+Current version 1.2.0  Apr 28,2020
 
 Copyright (c) 2020 corrado federici (corrado.federici@unibo.it)
 
@@ -21,8 +21,8 @@ On the other hand, please consider that if size S overly increases, so does the 
   Usage: python3 capmerge.py "source pcap files folder" "destination pcap files folder" "size in MB"
   (e.g. python3 capmerge.py "/home/user/caps-in" "/home/user/caps-merged" "20")
 
-- metrics/es_metrics.py: performs queries on ES to detect the presence known applications (as per ntopng protocols definitions) such as most frequent dns resolutions, top talkers, top http/https hosts, communication protocols (e.g. STUN, RTP, WhatsApp/Skype calls) and social media Apps (Twitter,Facebook,...) and generates a report with whois and nslookup data of ip addresses
+- metrics/es_metrics.py: performs queries on ES to detect the presence known application protocols (as per ntopng protocols definitions). A report with whois and nslookup data of ip addresses is finally generate as CSV file which contains most frequent dns resolutions, top talkers, top http/https hosts, http user-agents (leveraging ngrep), http top urls, communication protocols (e.g. STUN, RTP, WhatsApp/Skype calls), social media Apps (Twitter,Facebook,...) and many other (databases, file transfer, remote management, ..). Protocol detection can be easily enabled/disabled via python code modification (arrays COMM_PROTO and ALLOWED_PROTO)
 
-  Usage: python3 es_metrics.py  "number of top scored records"  (e.g. python3 es_metrics.py  "10")
+  Usage: python3 es_metrics.py  "number of top scored records" "path to pcap files folder" (e.g. python3 es_metrics.py  "10" "/home/user/caps")
 
-Tested with: Ubuntu 19.04, Ntopng rel 3.8.190813 community, Mergecap (Wireshark) 3.0.5 (Git v3.0.5 packaged as 3.0.5-1), Python 3.7.5, Elastisearch 7.6.1
+Tested with: Ubuntu 19.04, Ntopng rel 3.8.190813 community, Mergecap (Wireshark) 3.0.5 (Git v3.0.5 packaged as 3.0.5-1), Python 3.7.5, Elastisearch 7.6.1, Ngrep 1.47.1
