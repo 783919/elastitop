@@ -15,7 +15,11 @@ elastitop_mngr.py:
 - added a control to detect ntopng version. Relases 3.9+ seem lazier to write flows to ES and get more time after packet polling end and before termination
 - switch -d <working_dir> to ntopng to launch more instances with their private working folder (deleted after ntopng instance termination). Otherwise (tested with ntopng version 4.1) a mutually exclusive lock prevented more instances to launched concurrently if working folder is the same for all instances
 ### Changed
-capmerge.py: max size of merged file was raised to 1 GB (from 100 MB).
+capmerge.py:
+- max size of merged file was raised to 1 GB (from 100 MB).
+### Added
+es_metrics.py:
+- NTOPNG version control (version is hardcoded) because in version 4 ES term SSL_SERVER_NAME was renamed TLS_SERVER_NAME and this impacts https hosts report
 
 ## [1.2.0] - 2020-04-28
 ### Added
