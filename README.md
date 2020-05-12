@@ -24,5 +24,7 @@ On the other hand, please consider that if size S overly increases, so does the 
 - metrics/es_metrics.py: performs queries on ES to detect the presence known application protocols (as per ntopng protocols definitions). A report with whois and nslookup data of ip addresses is finally generated as CSV file which contains most frequent dns resolutions, top talkers, top http/https hosts, http user-agents (leveraging ngrep), http top urls, communication protocols (e.g. STUN, RTP, WhatsApp/Skype calls), social media Apps (Twitter,Facebook,...) and many other (databases, file transfer, remote management, ..). Protocol detection can be easily enabled/disabled via python code modification (arrays COMM_PROTO and ALLOWED_PROTO)
 
   Usage: python3 es_metrics.py  "number of top scored records" "path to pcap files folder" (e.g. python3 es_metrics.py  "10" "/home/user/caps")
+ 
+Run each tool in its own folder.
 
 Tested with: Ubuntu 19.04, Ntopng rel 4.1.200507 community, Mergecap (Wireshark) 3.0.5 (Git v3.0.5 packaged as 3.0.5-1), Python 3.7.5, Elastisearch 7.6.1, Ngrep 1.47.1
