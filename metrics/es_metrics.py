@@ -18,6 +18,7 @@ REPORT_FNAME="report.csv"
 REPORT_SPACE_HDR="***\n"
 MAX_HITS=100
 REPORT_COL_SEP=","
+NTOPNG_MAJ_VER=4
 #
 NDPI_PROTOS={
 #"NDPI_PROTOCOL_UNKNOWN":"0",
@@ -626,13 +627,18 @@ def calculate_hits_http_hosts(num_of_hits):
 
 #############################################################################################
 def calculate_hits_https_hosts(num_of_hits):
+    FLD_SRV_NAME=""
+    if NTOPNG_MAJ_VER >=4:
+        FLD_SRV_NAME="TLS_SERVER_NAME.keyword"
+    else:
+        FLD_SRV_NAME="SSL_SERVER_NAME.keyword"
     ES_QUERY_HITS ={
         "size":0,
         "aggs" : {
             "es_query" : {
                 "terms" : {
                     "size":num_of_hits,
-                    "field" : "SSL_SERVER_NAME.keyword"
+                    "field" : FLD_SRV_NAME
                 }
             }
         }
