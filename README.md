@@ -1,7 +1,7 @@
 # elastitop
 ntopng flows massive uploader to Elasticsearch and report generator.
 
-Current version 1.2.0  Apr 28,2020
+Current version 1.3.0  May 12,2020
 
 Copyright (c) 2020 corrado federici (corrado.federici@unibo.it)
 
@@ -12,11 +12,11 @@ If you need to get a quick insight into a vast amount of captured traffic this p
 
   Usage: sudo python3 elastitop_mngr.py "path to pcap files folder" (e.g. sudo python3 elastitop_mngr.py "/home/user/caps")
   
-- capmerge/capmerge.py: aggregates small sized pcaps into a large one according to a user defined size S, say from 20 to 50 GB (there is an hardcoded 100 MB limit). If a pcap il already larger than S it is only renamed. The module spawns at most 8 (also hardcoded) concurrent mergecap (wireshark common) processes to aggregate input pcaps. The use of capmerge.py is optional before invoking elastitop_mngr.py, but could be useful:
+- capmerge/capmerge.py: aggregates small sized pcaps into a large one according to a user defined size S, say from 100 to 500 MB for ntopng versions 4+ (there is an hardcoded 1024 MB limit). If a pcap il already larger than S it is only renamed. The module spawns at most 8 (also hardcoded) concurrent mergecap (wireshark common) processes to aggregate input pcaps. The use of capmerge.py is optional before invoking elastitop_mngr.py, but could be useful:
   * to reduce the overall number of spawned ntopng processes, as the shutdown phase (which flushes flows to ES in tested version 3.8) is time consuming
   * to avoid polluting ES with many almost identical documents, in presence of small sized pcap files that ultimately store the same flow.
   
-On the other hand, please consider that if size S overly increases, so does the chance of ES dropping flows 
+On the other hand, please consider that if size S overly increases, so does the chance of ES dropping flows, even if ntopng rel 4.1 has a default max capacity of 131072 active flows 
 
   Usage: python3 capmerge.py "source pcap files folder" "destination pcap files folder" "size in MB"
   (e.g. python3 capmerge.py "/home/user/caps-in" "/home/user/caps-merged" "20")
@@ -25,4 +25,4 @@ On the other hand, please consider that if size S overly increases, so does the 
 
   Usage: python3 es_metrics.py  "number of top scored records" "path to pcap files folder" (e.g. python3 es_metrics.py  "10" "/home/user/caps")
 
-Tested with: Ubuntu 19.04, Ntopng rel 3.8.190813 community, Mergecap (Wireshark) 3.0.5 (Git v3.0.5 packaged as 3.0.5-1), Python 3.7.5, Elastisearch 7.6.1, Ngrep 1.47.1
+Tested with: Ubuntu 19.04, Ntopng rel 4.1.200507 community, Mergecap (Wireshark) 3.0.5 (Git v3.0.5 packaged as 3.0.5-1), Python 3.7.5, Elastisearch 7.6.1, Ngrep 1.47.1
