@@ -5,6 +5,7 @@ import ctypes
 import time
 import logging
 import signal
+import shutil
 
 #############################################################################################
 ES_INDEX="ntopng-%Y.%m.%d"
@@ -17,23 +18,45 @@ def process_pcap_file(filename,port):
     es_string="es;doc;{0};{1};".format(ES_INDEX,ES_CONNECT)
     command=["ntopng", "-n", "1", "-w"]
     command.append(port)
+    work_dir="ntopng-work-dir-{0}".format(os.getpid())
+    os.mkdir(work_dir)
+    command.append("-d")
+    command.append(work_dir)
     command.append("-i")
     command.append(filename)
     command.append("-F")
     command.append(es_string)
     p = subprocess.Popen(command,stdout=subprocess.PIPE,stdin=subprocess.PIPE,
       stderr=subprocess.PIPE,shell=False)
+    timeout=25
     while p.poll() is None:
       line=p.stdout.readline().decode()
       logging.info(line)
-      if "Terminated packet polling" in line:
-        time.sleep(1)
+      if "Welcome to ntopng" in line:
+        # it appears that ver >=3.9 are lazier in flushing flows onto ES. Let's allow some more time
+        maj_ver=line.split("v.")[1][0]
+        maj_ver_num=int(maj_ver)
+        min_ver=line.split("v.")[1][2]
+        min_ver_num=int(min_ver)
+        if maj_ver_num <3:
+            timeout=0
+        elif maj_ver_num ==3:
+          if min_ver_num <=8:
+            timeout=0
+        logging.info(
+          "Ntopng major version is {0}. Wait before shutdown will be {1} seconds".format(maj_ver_num,timeout))
+      elif "Terminated packet polling" in line:
+        time.sleep(5)
+        while timeout > 0:
+          timeout-=1
+          time.sleep(1)
         os.kill(p.pid,signal.SIGINT)
       time.sleep(.2)
     error=p.stderr.readlines()
     if(len(error)>0):
       logging.error("An error occurred. {0}".format(error))
     logging.debug("output is {0}".format(p.stdout.readlines()))
+    shutil.rmtree(work_dir,ignore_errors=True)
     logging.info("Done processing file {0}".format(filename))
 
 

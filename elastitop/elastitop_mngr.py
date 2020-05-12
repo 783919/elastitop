@@ -8,11 +8,13 @@ import glob
 import psutil
 
 #############################################################################################
-BANNER="Elastitop: Ntopng flows massive dumper to Elasticsearch rel. 1.2.0 Corrado Federici (corrado.federici@unibo.it). Times are in GMT"
+BANNER="Elastitop: Ntopng flows massive dumper to Elasticsearch rel. 1.3.0 Corrado Federici (corrado.federici@unibo.it). Times are in GMT"
 LOG_FOLDER="./logs"
 #############################################################################################
 def spawn_process(pcap_file,port,proc_list):
-    command=["python3", "elastitop.py"]
+    logging.info("Processing file {0}".format(pcap_file))
+    command=["python3"]
+    command.append("elastitop.py")
     command.append(pcap_file)
     command.append(port)
     p = subprocess.Popen(command,stdout=subprocess.PIPE,stdin=subprocess.PIPE,
@@ -28,8 +30,7 @@ def pick_a_free_port(ports_list):
     return ""
 #############################################################################################
 def process_pcap_folder(pcap_files_folder):
-    MAX_NUM_OF_CONCUR_PROC=2
-    av_ports =	{#num of ports must be equal to MAX_NUM_OF_CONCUR_PROC
+    av_ports =	{
         #"4000": 0,
         #"4001": 0,
         #"4002": 0,
@@ -56,7 +57,7 @@ def process_pcap_folder(pcap_files_folder):
     #for filename in os.listdir(pcap_files_folder):
         if filename.endswith(".pcap") or filename.endswith(".pcapng"):
             processed_pcaps+=1
-            logging.info("Processing file {0}".format(filename))
+            #logging.info("Processing file {0}".format(filename))
             if(len(process_list)<len(av_ports)):
                 port=pick_a_free_port(av_ports)
                 if(len(port)==0):
