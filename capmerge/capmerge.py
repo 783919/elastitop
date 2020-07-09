@@ -8,9 +8,9 @@ import glob
 import shutil
 
 #############################################################################################
-BANNER="Capmerge : merge cap files up to chosen size rel. 1.3.0 Corrado Federici (corrado.federici@unibo.it). Times are in GMT"
+BANNER="Capmerge : merge cap files up to chosen size rel. 1.3.1 Corrado Federici (corrado.federici@unibo.it). Times are in GMT"
 LOG_FOLDER="./logs"
-MERGED_FILE_SZ_MB=1024
+MAX_MERGED_FILE_SZ_MB=1024
 ONE_MB=1024*1024
 MAX_NUM_OF_INSTANCES=8
 #############################################################################################
@@ -29,13 +29,15 @@ def merge_files(proc_list,file_to_merge_list,dest_file):
         else:
             for key in must_be_deleted:
                 del proc_list[key]
-    command=["mergecap", "-w"]
+    command=["mergecap","-w"]
     command.append(dest_file)
     for item in file_to_merge_list:
         command.append(item)
-    p = subprocess.Popen(command,shell=False)
-    #p = subprocess.Popen(command,stdout=subprocess.PIPE,stdin=subprocess.PIPE,
-        #stderr=subprocess.PIPE,shell=False)
+    #p = subprocess.Popen(command,shell=True)
+    p = subprocess.Popen(command,stderr=subprocess.PIPE)
+    error=p.stderr.readline()
+    if(len(error)>0):
+        logging.error("An error occurred. {0}".format(error))
     proc_list[p.pid]=p
 #############################################################################################
 def process_pcap_folder(pcap_source_files_folder,pcap_dest_files_folder,size_in_MB):
@@ -54,9 +56,16 @@ def process_pcap_folder(pcap_source_files_folder,pcap_dest_files_folder,size_in_
         size=os.path.getsize(filename)
         total_processed_size+=size
         if(size/ONE_MB>=size_in_MB):
+            if merged_file_size >0:
+                copied_file_id+=1
+                merge_name="merged-{0}.pcap".format(copied_file_id)
+                logging.info("Merged pcap file name {0}".format(os.path.join(pcap_dest_files_folder,merge_name)))
+                merge_files(process_list,files_to_merge_list,os.path.join(pcap_dest_files_folder,merge_name))
+                merged_file_size=0
+                files_to_merge_list.clear()            
             copied_file_id+=1
             merge_name="merged-{0}.pcap".format(copied_file_id)
-            logging.info("Merged pcap file name {0}".format(merge_name))
+            logging.info("Merged pcap file name {0}".format(os.path.join(pcap_dest_files_folder,merge_name)))
             shutil.copy(filename,os.path.join(pcap_dest_files_folder,merge_name))
             continue
         merged_file_size+=size
@@ -64,13 +73,14 @@ def process_pcap_folder(pcap_source_files_folder,pcap_dest_files_folder,size_in_
         if(merged_file_size/ONE_MB>=size_in_MB):
             copied_file_id+=1
             merge_name="merged-{0}.pcap".format(copied_file_id)
-            logging.info("Merged pcap file name {0}".format(merge_name))
+            logging.info("Merged pcap file name {0}".format(os.path.join(pcap_dest_files_folder,merge_name)))
             merge_files(process_list,files_to_merge_list,os.path.join(pcap_dest_files_folder,merge_name))
             merged_file_size=0
             files_to_merge_list.clear()            
     if(len(files_to_merge_list)>0):
         copied_file_id+=1
         merge_name="merged-{0}.pcap".format(copied_file_id)
+        logging.info("Merged pcap file name {0}".format(os.path.join(pcap_dest_files_folder,merge_name)))
         merge_files(process_list,files_to_merge_list,os.path.join(pcap_dest_files_folder,merge_name))
     logging.info("Processed {0} pcap files in folder {1}. Total processed size was {2} bytes".format(processed_pcaps,
         pcap_source_files_folder,total_processed_size))
@@ -96,10 +106,10 @@ try:
         raise Exception("Path {0} is invalid".format(path_to_source_pcap_folder))
     path_to_dest_pcap_folder=sys.argv[2]
     if not(os.path.exists(path_to_dest_pcap_folder)):
-        raise Exception("Path {0} is invalid".format(path_to_dest_pcap_folder))
+        os.makedirs(path_to_dest_pcap_folder)
     size_in_MB=sys.argv[3]
-    if (int(size_in_MB)>MERGED_FILE_SZ_MB):
-        raise Exception("Merged caps file size needs to less than {0} (MB)".format(MERGED_FILE_SZ_MB))
+    if (int(size_in_MB)>MAX_MERGED_FILE_SZ_MB):
+        raise Exception("Merged caps file size needs to less than {0} (MB)".format(MAX_MERGED_FILE_SZ_MB))
     logging.info("Chosen merged file size is {0} MB".format(size_in_MB))
     logging.info("Max number of concurrent mergecap processes is {0}".format(MAX_NUM_OF_INSTANCES))
     process_pcap_folder(path_to_source_pcap_folder,path_to_dest_pcap_folder,int(size_in_MB))
