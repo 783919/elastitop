@@ -10,7 +10,7 @@ import socket
 #import glob
 
 #############################################################################################
-BANNER="Es metrics : calculate reports on Elasticsearch rel. 1.3.0 Corrado Federici (corrado.federici@unibo.it). Times are in GMT"
+BANNER="Es metrics : calculate reports on Elasticsearch rel. 1.3.1 Corrado Federici (corrado.federici@unibo.it). Times are in GMT"
 ES_CONNECT="http://localhost:9200/ntopng-*/_search"
 LOG_FOLDER="./logs"
 REPORT_FOLDER="./reports"
