@@ -16,6 +16,7 @@ def process_pcap_file(filename,port):
   if filename.endswith(".pcap") or filename.endswith(".pcapng"):
     logging.info("Feeding ntopng with file {0}".format(filename))
     es_string="es;doc;{0};{1};".format(ES_INDEX,ES_CONNECT)
+    #es_string="es;doc;{0}-{1};{2};".format(ES_INDEX,os.getpid(),ES_CONNECT)
     command=["ntopng", "-n", "1", "-w"]
     command.append(port)
     work_dir="ntopng-work-dir-{0}".format(os.getpid())
@@ -26,8 +27,7 @@ def process_pcap_file(filename,port):
     command.append(filename)
     command.append("-F")
     command.append(es_string)
-    p = subprocess.Popen(command,stdout=subprocess.PIPE,stdin=subprocess.PIPE,
-      stderr=subprocess.PIPE,shell=False)
+    p = subprocess.Popen(command,stdout=subprocess.PIPE,stderr=subprocess.PIPE,shell=False)
     timeout=25
     while p.poll() is None:
       line=p.stdout.readline().decode()
@@ -55,7 +55,6 @@ def process_pcap_file(filename,port):
     error=p.stderr.readlines()
     if(len(error)>0):
       logging.error("An error occurred. {0}".format(error))
-    logging.debug("output is {0}".format(p.stdout.readlines()))
     shutil.rmtree(work_dir,ignore_errors=True)
     logging.info("Done processing file {0}".format(filename))
 

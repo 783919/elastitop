@@ -8,7 +8,7 @@ import glob
 import psutil
 
 #############################################################################################
-BANNER="Elastitop: Ntopng flows massive dumper to Elasticsearch rel. 1.3.0 Corrado Federici (corrado.federici@unibo.it). Times are in GMT"
+BANNER="Elastitop: Ntopng flows massive dumper to Elasticsearch rel. 1.3.1 Corrado Federici (corrado.federici@unibo.it). Times are in GMT"
 LOG_FOLDER="./logs"
 #############################################################################################
 def spawn_process(pcap_file,port,proc_list):
@@ -17,8 +17,10 @@ def spawn_process(pcap_file,port,proc_list):
     command.append("elastitop.py")
     command.append(pcap_file)
     command.append(port)
-    p = subprocess.Popen(command,stdout=subprocess.PIPE,stdin=subprocess.PIPE,
-        stderr=subprocess.PIPE,shell=False)
+    p = subprocess.Popen(command,stderr=subprocess.PIPE)
+    #error=p.stderr.readlines()
+    #if(len(error)>0):
+      #logging.error("An error occurred. {0}".format(error))
     proc_list[port]=p
 
 #############################################################################################
@@ -54,7 +56,6 @@ def process_pcap_folder(pcap_files_folder):
     filenames = glob.glob(os.path.join(pcap_files_folder,"*"))
     filenames.sort(key=os.path.getmtime)
     for filename in filenames:
-    #for filename in os.listdir(pcap_files_folder):
         if filename.endswith(".pcap") or filename.endswith(".pcapng"):
             processed_pcaps+=1
             #logging.info("Processing file {0}".format(filename))
