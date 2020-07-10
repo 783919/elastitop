@@ -1,7 +1,7 @@
 # elastitop
 ntopng flows massive uploader to Elasticsearch and report generator.
 
-Current version 1.3.0  May 12,2020
+Current version 1.3.2  July 10,2020
 
 Copyright (c) 2020 corrado federici (corrado.federici@unibo.it)
 
