@@ -10,7 +10,7 @@ import socket
 #import glob
 
 #############################################################################################
-BANNER="Es metrics : calculate reports on Elasticsearch rel. 1.3.1 Corrado Federici (corrado.federici@unibo.it). Times are in GMT"
+BANNER="Es metrics : calculate reports on Elasticsearch rel. 1.3.2 Corrado Federici (corrado.federici@unibo.it). Times are in GMT"
 ES_CONNECT="http://localhost:9200/ntopng-*/_search"
 LOG_FOLDER="./logs"
 REPORT_FOLDER="./reports"
@@ -664,7 +664,7 @@ def calculate_hits_ipv4dest_out_bytes(num_of_hits):
             "es_query" : {
                 "terms" : {
                     "size":num_of_hits,
-                    "field" : "IPV4_DST_ADDR.keyword",
+                    "field" : "IPV4_DST_ADDR",
 					"order" : {
 					    "sum_out_bytes":"desc"
 					}
@@ -700,7 +700,7 @@ def calculate_hits_ipv4dest_in_bytes(num_of_hits):
             "es_query" : {
                 "terms" : {
                     "size":num_of_hits,
-                    "field" : "IPV4_DST_ADDR.keyword",
+                    "field" : "IPV4_DST_ADDR",
 					"order" : {
 					    "sum_in_bytes":"desc"
 					}
